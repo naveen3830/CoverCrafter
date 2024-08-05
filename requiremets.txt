@@ -1,5 +1,5 @@
 langchain
-langchain_groq
+langchain-groq
 streamlit
 DateTime
 python-docx
