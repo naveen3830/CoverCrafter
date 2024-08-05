@@ -1,38 +1,157 @@
 import streamlit as st
-from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain.prompts import ChatMessagePromptTemplate, PromptTemplate, FewShotPromptTemplate
-import os
 from langchain_groq import ChatGroq
-from dotenv import load_dotenv
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema import HumanMessage, SystemMessage
+from docx import Document
+from io import BytesIO
+from datetime import date
 
-# Load environment variables
-load_dotenv()
+def generate_cover_letter(api_key, model, job_description, user_info, temperature):
+    chat = ChatGroq(
+        groq_api_key=api_key,
+        model_name=model,
+        temperature=temperature,
+        max_tokens=2048
+    )
 
-# Get the Groq API key from environment variables
-groq_api_key = os.getenv("GROQ_API_KEY")
-llm = ChatGroq(groq_api_key=groq_api_key, model="gemma-7b-it",temperature=1.5)
+    system_template = """
+    You are a professional cover letter writer. Generate a well-structured cover letter in plain text format using the provided user information and job description.
+    """
 
-# Set Streamlit page configuration
-st.set_page_config(page_title="VocabMaster", layout="centered")
+    human_template = f"""
+    Create a cover letter based on the following user information and job description. The cover letter should be in plain text format, ready to be inserted into a Word document.
 
-# Set the header of the app
-st.header("VocabMaster :books:")
+    User Information:
+    Name: {user_info['name']}
+    Address: {user_info['address']}
+    City, State ZIP: {user_info['city_state_zip']}
+    Position applying for: {user_info['position']}
 
-def generate_vocabulary():
-    # Template for generating vocabulary
-    template = "Your name is VocabMaster. You are an expert in English vocabulary. Introduce yourself as VocabMaster. You can generate 5 English words that are useful in daily life to improve English speaking skills, along with example uses of each word. You are only allowed to answer vocabulary-related queries. If you don't know the answer, respond with 'I don't know the answer.' Also try not to repeat the words again."
-    
-    # Generate response from LLM
-    response = llm.invoke(template)
-    
-    return response.content
+    Company Information:
+    Company Name: {user_info['company_name']}
+    Company Address: {user_info['company_address']}
+    Company City, State ZIP: {user_info['company_city_state_zip']}
 
-def main():
-    # Button to generate vocabulary
-    if st.button('Generate Vocabulary'):
-        vocabulary = generate_vocabulary()
-        st.write(vocabulary)
+    Job Description:
+    {job_description}
 
-# Run the main function
-if __name__ == "__main__":
-    main()
+    Use the following structure for the cover letter:
+
+    [User's Name]
+    [User's Address]
+    [User's City, State ZIP Code]
+
+    [Today's Date]
+
+    [Company Name]
+    [Company Address]
+    [Company City, State ZIP Code]
+
+    Dear Hiring Manager,
+
+    [First paragraph: Introduction and statement of interest in the specific position]
+
+    [Second paragraph: Highlight relevant skills and experiences based on the job description]
+
+    [Third paragraph: Expand on why the applicant is a good fit for the role and the company]
+
+    [Closing paragraph: Express enthusiasm and request for interview]
+
+    Sincerely,
+
+    [User's Name]
+
+    Ensure the content of the letter is tailored to the job description and showcases the applicant's relevant skills and experiences. Use the provided user and company information in the appropriate places.
+    """
+
+    chat_prompt = ChatPromptTemplate.from_messages([
+        SystemMessage(content=system_template),
+        HumanMessage(content=human_template)
+    ])
+
+    chain = chat_prompt | chat
+
+    result = chain.invoke({
+        "name": user_info['name'],
+        "address": user_info['address'],
+        "city_state_zip": user_info['city_state_zip'],
+        "company_name": user_info['company_name'],
+        "company_address": user_info['company_address'],
+        "company_city_state_zip": user_info['company_city_state_zip'],
+        "position": user_info['position'],
+        "job_description": job_description
+    })
+
+    return result.content
+
+def create_word_document(content):
+    doc = Document()
+    for paragraph in content.split('\n'):
+        doc.add_paragraph(paragraph)
+    return doc
+
+st.set_page_config(page_title="CoverCrafter", layout="wide")
+
+st.title("CoverCrafter: AI-Generated Cover Letters")
+
+# Sidebar
+st.sidebar.header("Settings")
+st.sidebar.markdown("Customize the cover letter generation by providing the necessary details.")
+api_key = st.sidebar.text_input("Enter your Groq API Key", type="password")
+model = st.sidebar.selectbox("Select Model", ["mixtral-8x7b-32768", "llama2-70b-4096"])
+temperature = st.sidebar.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
+
+# Main page
+st.header("User and Company Information")
+col1, col2 = st.columns(2)
+
+with col1:
+    user_name = st.text_input("Your Name")
+    user_address = st.text_input("Your Street Address")
+    user_city_state_zip = st.text_input("Your City, State, Zip")
+
+with col2:
+    company_name = st.text_input("Company Name")
+    company_address = st.text_input("Company Street Address")
+    company_city_state_zip = st.text_input("Company City, State, Zip")
+
+position = st.text_input("Position you're applying for")
+
+st.header("Job Description")
+job_description = st.text_area("Enter the job description", height=200)
+
+# User information dictionary
+user_info = {
+    "name": user_name,
+    "address": user_address,
+    "city_state_zip": user_city_state_zip,
+    "company_name": company_name,
+    "company_address": company_address,
+    "company_city_state_zip": company_city_state_zip,
+    "position": position
+}
+
+generate_button = st.button("Generate Cover Letter")
+
+if generate_button and api_key and job_description and all(user_info.values()):
+    with st.spinner("Generating your cover letter..."):
+        cover_letter_content = generate_cover_letter(api_key, model, job_description, user_info, temperature)
+        st.subheader("Generated Cover Letter")
+        st.text_area("Cover Letter", cover_letter_content, height=400)
+        
+        # Create and download Word document
+        doc = create_word_document(cover_letter_content)
+        bio = BytesIO()
+        doc.save(bio)
+        
+        st.download_button(
+            label="Download as Word Document",
+            data=bio.getvalue(),
+            file_name="cover_letter.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+elif generate_button:
+    st.warning("Please fill in all fields and enter your Groq API key.")
+
+st.markdown("---")
+st.markdown("This app uses LangChain with the Groq API to generate personalized cover letters. Please ensure you have a valid Groq API key.")

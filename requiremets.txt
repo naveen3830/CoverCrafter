@@ -1,0 +1,5 @@
+langchain
+langchain_groq
+streamlit
+DateTime
+python-docx
