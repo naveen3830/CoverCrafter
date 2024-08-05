@@ -98,7 +98,7 @@ st.title("CoverCrafter: AI-Generated Cover Letters")
 st.sidebar.header("Settings")
 st.sidebar.markdown("Customize the cover letter generation by providing the necessary details.")
 api_key = st.sidebar.text_input("Enter your Groq API Key", type="password")
-model = st.sidebar.selectbox("Select Model", ["mixtral-8x7b-32768", "llama2-70b-4096"])
+model = st.sidebar.selectbox("Select Model",["llama-3.1-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"])
 temperature = st.sidebar.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
 
 # Main page
