@@ -6,6 +6,7 @@ from docx import Document
 from io import BytesIO
 from datetime import date
 
+# Function to generate a cover letter using ChatGroq
 def generate_cover_letter(api_key, model, job_description, user_info, temperature):
     chat = ChatGroq(
         groq_api_key=api_key,
@@ -84,40 +85,98 @@ def generate_cover_letter(api_key, model, job_description, user_info, temperatur
 
     return result.content
 
+# Function to create a Word document from generated content
 def create_word_document(content):
     doc = Document()
     for paragraph in content.split('\n'):
         doc.add_paragraph(paragraph)
     return doc
 
-st.set_page_config(page_title="CoverCrafter", layout="wide")
+# Set up page configuration
+st.set_page_config(page_title="CoverCrafter", layout="wide", page_icon="✍️")
 
-st.title("CoverCrafter: AI-Generated Cover Letters")
+# Apply custom CSS
+st.markdown("""
+    <style>
+        .main-header {
+            font-size: 32px;
+            font-weight: bold;
+            color: #007BFF;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sub-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .section-divider {
+            background-color: #007BFF;
+            height: 2px;
+            border: none;
+        }
+        .stButton>button {
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            padding: 10px;
+            font-weight: bold;
+        }
+        .stButton>button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# Sidebar
-st.sidebar.header("Settings")
-st.sidebar.markdown("Customize the cover letter generation by providing the necessary details.")
-api_key = st.sidebar.text_input("Enter your Groq API Key", type="password")
-model = st.sidebar.selectbox("Select Model",["llama-3.1-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"])
-temperature = st.sidebar.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
+# Main page content
+st.header("✍️ CoverCrafter: AI-Generated Cover Letters", divider='rainbow')
+st.markdown("""
+Welcome to **CoverCrafter**, the smart solution for crafting personalized and professional cover letters. 📝 
+Whether you're applying for your dream job or looking to make a strong first impression, our AI-driven platform generates tailored cover letters that highlight your unique skills, experiences, and aspirations. Simply input your details, and let **CoverCrafter** handle the rest, delivering a cover letter that sets you apart from the competition. 🚀
+""")
 
-# Main page
-st.header("User and Company Information")
+# Sidebar content
+with st.sidebar:
+    st.sidebar.header("⚙️ Settings")
+    st.sidebar.markdown("Customize the cover letter generation by providing the necessary details.")
+    st.divider()
+    with st.expander("Get Your API Key Here"):
+        st.markdown("## How to use\n"
+            "1. Enter your [Groq API key](https://console.groq.com/keys) below🔑\n" 
+            "2. Fill in the user and company information📄\n"
+            "3. Let CoverCrafter generate your cover letter!!!💬")
+    
+    groq_api_key = st.text_input("Enter your Groq API key:", type="password",
+            placeholder="Paste your Groq API key here (gsk_...)",
+            help="You can get your API key from https://console.groq.com/keys")
+    
+    st.divider()
+    st.header("Model Parameters")
+    model_name = st.selectbox("Select Model:",["gemma2-9b-it","llama-3.1-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768"])
+    temperature = st.slider("Temperature: Determines the randomness of the output. Higher values produce more creative responses.", min_value=0.0, max_value=1.0, value=0.7, step=0.1)
+    top_p = st.slider("Top-p: Controls the diversity of the generated text. Lower values make the output more focused.", min_value=0.0, max_value=1.0, value=1.0, step=0.1)
+
+    st.divider()
+
+# User and Company Information
+st.header("📋 User and Company Information", divider='rainbow')
+
 col1, col2 = st.columns(2)
-
 with col1:
-    user_name = st.text_input("Your Name")
-    user_address = st.text_input("Your Street Address")
-    user_city_state_zip = st.text_input("Your City, State, Zip")
+    user_name = st.text_input("👤 Your Name")
+    user_address = st.text_input("🏠 Your Street Address")
+    user_city_state_zip = st.text_input("🏙️ Your City, State, Zip")
 
 with col2:
-    company_name = st.text_input("Company Name")
-    company_address = st.text_input("Company Street Address")
-    company_city_state_zip = st.text_input("Company City, State, Zip")
+    company_name = st.text_input("🏢 Company Name")
+    company_address = st.text_input("📍 Company Street Address")
+    company_city_state_zip = st.text_input("🌆 Company City, State, Zip")
 
-position = st.text_input("Position you're applying for")
+position = st.text_input("💼 Position you're applying for")
 
-st.header("Job Description")
+# Job Description Input
+st.header("📝 Job Description")
 job_description = st.text_area("Enter the job description", height=200)
 
 # User information dictionary
@@ -131,12 +190,14 @@ user_info = {
     "position": position
 }
 
-generate_button = st.button("Generate Cover Letter")
+# Generate Cover Letter Button
+generate_button = st.button("🎉 Generate Cover Letter")
 
-if generate_button and api_key and job_description and all(user_info.values()):
+# Cover Letter Generation
+if generate_button and groq_api_key and job_description and all(user_info.values()):
     with st.spinner("Generating your cover letter..."):
-        cover_letter_content = generate_cover_letter(api_key, model, job_description, user_info, temperature)
-        st.subheader("Generated Cover Letter")
+        cover_letter_content = generate_cover_letter(groq_api_key, model_name, job_description, user_info, temperature)
+        st.subheader("📄 Generated Cover Letter")
         st.text_area("Cover Letter", cover_letter_content, height=400)
         
         # Create and download Word document
@@ -145,13 +206,14 @@ if generate_button and api_key and job_description and all(user_info.values()):
         doc.save(bio)
         
         st.download_button(
-            label="Download as Word Document",
+            label="💾 Download as Word Document",
             data=bio.getvalue(),
             file_name="cover_letter.docx",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
 elif generate_button:
-    st.warning("Please fill in all fields and enter your Groq API key.")
+    st.warning("⚠️ Please fill in all fields and enter your Groq API key.")
 
+# Footer
 st.markdown("---")
 st.markdown("This app uses LangChain with the Groq API to generate personalized cover letters. Please ensure you have a valid Groq API key.")
