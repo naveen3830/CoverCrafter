@@ -16,10 +16,16 @@
 🚀 **Getting Started**
 1. Clone this repository: 
    ```bash
-   git clone https://github.com/yourusername/CoverCrafter.git
+   git clone https://github.com/naveen3830/CoverCrafter.git
    cd CoverCrafter
 2. Install the required packages:
     ```bash
    pip install -r requirements.txt
 3. Set up the Groq API key:
-Open app.py and replace the placeholder YOUR_API_KEY with your Groq API key.
+   Open app.py and replace the placeholder YOUR_API_KEY with your Groq API key.
+4. Run the web application:
+    ```bash
+    streamlit run app.py
+
+
+   
