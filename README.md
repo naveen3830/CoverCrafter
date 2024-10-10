@@ -26,6 +26,17 @@
 4. Run the web application:
     ```bash
     streamlit run app.py
+    
+🔗 **Links**
+- [Streamlit](https://streamlit.io/): Web application framework used for deployment.
+- [Random Forest Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html): Machine learning model used for customer churn prediction.
+---
+📝 **Note**
+- Make sure to fill in the user and company details along with a job description to generate the cover letter.
+- You can adjust the AI model parameters, such as temperature and top-p, in the sidebar to control the creativity of the output.
+---
+📧 **Contact**
+For any inquiries or feedback, please contact: [naveenr3830@gmail.com](mailto:naveenr3830@gmail.com)
 
 
    
