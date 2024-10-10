@@ -6,7 +6,6 @@ from docx import Document
 from io import BytesIO
 from datetime import date
 
-# Function to generate a cover letter using ChatGroq
 def generate_cover_letter(api_key, model, job_description, user_info, temperature):
     chat = ChatGroq(
         groq_api_key=api_key,
@@ -42,7 +41,6 @@ def generate_cover_letter(api_key, model, job_description, user_info, temperatur
     [User's Address]
     [User's City, State ZIP Code]
 
-    [Today's Date]
 
     [Company Name]
     [Company Address]
@@ -62,7 +60,7 @@ def generate_cover_letter(api_key, model, job_description, user_info, temperatur
 
     [User's Name]
 
-    Ensure the content of the letter is tailored to the job description and showcases the applicant's relevant skills and experiences. Use the provided user and company information in the appropriate places.
+    Ensure the content of the letter is tailored to the job description and showcases the applicant's relevant skills and experiences. Use the provided user and company information in the appropriate places. Also make sure that there should not be any inputtable content once the coverletter is generated.
     """
 
     chat_prompt = ChatPromptTemplate.from_messages([
@@ -85,17 +83,15 @@ def generate_cover_letter(api_key, model, job_description, user_info, temperatur
 
     return result.content
 
-# Function to create a Word document from generated content
 def create_word_document(content):
     doc = Document()
     for paragraph in content.split('\n'):
         doc.add_paragraph(paragraph)
     return doc
 
-# Set up page configuration
+
 st.set_page_config(page_title="CoverCrafter", layout="wide", page_icon="✍️")
 
-# Apply custom CSS
 st.markdown("""
     <style>
         .main-header {
@@ -136,7 +132,6 @@ Welcome to **CoverCrafter**, the smart solution for crafting personalized and pr
 Whether you're applying for your dream job or looking to make a strong first impression, our AI-driven platform generates tailored cover letters that highlight your unique skills, experiences, and aspirations. Simply input your details, and let **CoverCrafter** handle the rest, delivering a cover letter that sets you apart from the competition. 🚀
 """)
 
-# Sidebar content
 with st.sidebar:
     st.sidebar.header("⚙️ Settings")
     st.sidebar.markdown("Customize the cover letter generation by providing the necessary details.")
@@ -159,7 +154,6 @@ with st.sidebar:
 
     st.divider()
 
-# User and Company Information
 st.header("📋 User and Company Information", divider='rainbow')
 
 col1, col2 = st.columns(2)
@@ -175,11 +169,9 @@ with col2:
 
 position = st.text_input("💼 Position you're applying for")
 
-# Job Description Input
-st.header("📝 Job Description")
+st.header("📝 Job Description",divider='rainbow')
 job_description = st.text_area("Enter the job description", height=200)
 
-# User information dictionary
 user_info = {
     "name": user_name,
     "address": user_address,
@@ -190,17 +182,13 @@ user_info = {
     "position": position
 }
 
-# Generate Cover Letter Button
 generate_button = st.button("🎉 Generate Cover Letter")
 
-# Cover Letter Generation
 if generate_button and groq_api_key and job_description and all(user_info.values()):
     with st.spinner("Generating your cover letter..."):
         cover_letter_content = generate_cover_letter(groq_api_key, model_name, job_description, user_info, temperature)
         st.subheader("📄 Generated Cover Letter")
         st.text_area("Cover Letter", cover_letter_content, height=400)
-        
-        # Create and download Word document
         doc = create_word_document(cover_letter_content)
         bio = BytesIO()
         doc.save(bio)
@@ -214,6 +202,5 @@ if generate_button and groq_api_key and job_description and all(user_info.values
 elif generate_button:
     st.warning("⚠️ Please fill in all fields and enter your Groq API key.")
 
-# Footer
 st.markdown("---")
 st.markdown("This app uses LangChain with the Groq API to generate personalized cover letters. Please ensure you have a valid Groq API key.")
