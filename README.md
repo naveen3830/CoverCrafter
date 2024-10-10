@@ -27,6 +27,7 @@
     ```bash
     streamlit run app.py
     
+---
 🔗 **Links**
 - [Streamlit](https://streamlit.io/): Web application framework used for deployment.
 - [Random Forest Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html): Machine learning model used for customer churn prediction.
