@@ -3,3 +3,4 @@ langchain-groq
 streamlit
 DateTime
 python-docx
+orjson

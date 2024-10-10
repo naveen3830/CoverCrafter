@@ -60,7 +60,7 @@ def generate_cover_letter(api_key, model, job_description, user_info, temperatur
 
     [User's Name]
 
-    Ensure the content of the letter is tailored to the job description and showcases the applicant's relevant skills and experiences. Use the provided user and company information in the appropriate places. Also make sure that there should not be any inputtable content once the coverletter is generated.
+    Ensure the content of the letter is tailored to the job description and showcases the applicant's relevant skills and experiences. Use the provided user and company information in the appropriate places. Also make sure that there should not be any input able content once the coverletter is generated.
     """
 
     chat_prompt = ChatPromptTemplate.from_messages([
