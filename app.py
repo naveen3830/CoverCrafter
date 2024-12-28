@@ -145,7 +145,7 @@ with st.sidebar:
     
     st.divider()
     st.header("Model Parameters")
-    model_name = st.selectbox("Select Model:", ["gemma2-9b-it", "llama-3.1-70b-versatile", "llama3-70b-8192", "mixtral-8x7b-32768"])
+    model_name = st.selectbox("Select Model:", ["gemma2-9b-it", "llama-3.3-70b-versatile", "llama3-70b-8192", "mixtral-8x7b-32768"])
     temperature = st.slider("Temperature: Determines the randomness of the output. Higher values produce more creative responses.", min_value=0.0, max_value=1.0, value=0.7, step=0.1)
     top_p = st.slider("Top-p: Controls the diversity of the generated text. Lower values make the output more focused.", min_value=0.0, max_value=1.0, value=1.0, step=0.1)
 
