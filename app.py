@@ -1,13 +1,28 @@
 import streamlit as st
 from langchain_groq import ChatGroq
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import HumanMessage, SystemMessage
 from docx import Document
 from io import BytesIO
 from datetime import date
 
-# Load the Groq API key from Streamlit secrets
-groq_api_key = st.secrets["groq_api_key"]
+
+# Load the Groq API key from environment variables or Streamlit secrets
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+try:
+    groq_api_key = st.secrets.get("groq_api_key")
+except FileNotFoundError:
+    groq_api_key = None
+
+if not groq_api_key:
+    groq_api_key = os.getenv("GROQ_API_KEY")
+
+if not groq_api_key:
+    st.error("GROQ_API_KEY not found in secrets or environment variables.")
+    st.stop()
 
 # Function to generate a cover letter using ChatGroq
 def generate_cover_letter(api_key, model, job_description, user_info, temperature):

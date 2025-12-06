@@ -1,6 +1,7 @@
-langchain
-langchain-groq
-streamlit
-DateTime
-python-docx
-orjson
+langchain==1.1.2
+langchain-groq==1.1.0
+streamlit==1.52.1
+DateTime==6.0
+python-docx==1.2.0
+orjson==3.11.4
+python-dotenv==1.0.1
